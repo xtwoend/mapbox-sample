@@ -22,7 +22,8 @@ export default {
   components: {MapboxMap, MapboxNavigationControl},
   data() {
     return {
-      map: null
+      map: null,
+      current: []
     }
   },
   mounted() {
@@ -40,9 +41,16 @@ export default {
           coordinates: []
         }
       }
-
-      coordinates.forEach(row => {
+      
+      coordinates.forEach((row, i) => {
+        if(this.current){
+          let r = this.calcCrow(this.current[1], this.current[0], row.lat, row.lng);
+          if(r > 200) {
+            return;
+          }
+        }
         routes.geometry.coordinates.push([row.lng, row.lat])
+        this.current = [row.lng, row.lat]
       })
 
       this.map.addSource('route', {
@@ -116,10 +124,10 @@ export default {
     calcCrow(lat1, lon1, lat2, lon2) 
     {
       var R = 6371; // km
-      var dLat = toRad(lat2-lat1);
-      var dLon = toRad(lon2-lon1);
-      var lat1 = toRad(lat1);
-      var lat2 = toRad(lat2);
+      var dLat = this.toRad(lat2-lat1);
+      var dLon = this.toRad(lon2-lon1);
+      var lat1 = this.toRad(lat1);
+      var lat2 = this.toRad(lat2);
 
       var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
         Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2); 
